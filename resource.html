@@ -7,6 +7,9 @@
     body { font-family: Arial, sans-serif; padding:20px; background:#0f1724; color:#e6eef8; }
     a { color:#7c3aed; text-decoration:none; }
     a:hover { text-decoration:underline; }
+    .neo-list { margin-top:20px; }
+    .neo-item { padding:10px; border:1px solid #333; border-radius:6px; margin-bottom:10px; background:#1c2537; }
+    .neo-item:hover { background:#2a3350; cursor:pointer; }
   </style>
 </head>
 <body>
@@ -16,6 +19,8 @@
     <a href="resources.html">Resources</a> | 
     <a href="about.html">About</a>
   </nav>
+
+  <h2>NASA & USGS Data Sources</h2>
   <ul>
     <li><a href="https://api.nasa.gov/" target="_blank">NASA NEO API</a></li>
     <li><a href="https://earthquake.usgs.gov/earthquakes/search/" target="_blank">USGS Earthquake Catalog</a></li>
@@ -24,5 +29,58 @@
     <li><a href="https://eyes.nasa.gov/apps/asteroids/" target="_blank">Eyes on Asteroids (NASA/JPL)</a></li>
     <li><a href="https://www.asc-csa.gc.ca/eng/satellites/neossat/" target="_blank">CSA NEOSSAT</a></li>
   </ul>
+
+  <h2>🚀 Today's Near-Earth Objects</h2>
+  <div id="neoList" class="neo-list">Loading...</div>
+
+  <script>
+    async function loadNEOList() {
+      try {
+        const today = new Date().toISOString().split("T")[0];
+        const url = `https://api.nasa.gov/neo/rest/v1/feed?start_date=${today}&end_date=${today}&api_key=DEMO_KEY`;
+        const res = await fetch(url);
+        const data = await res.json();
+
+        const neos = data.near_earth_objects[today];
+        const list = document.getElementById("neoList");
+        list.innerHTML = "";
+
+        if (!neos || neos.length === 0) {
+          list.textContent = "No NEOs found for today.";
+          return;
+        }
+
+        neos.forEach(neo => {
+          const diameter = neo.estimated_diameter.meters.estimated_diameter_max.toFixed(0);
+          const speed = parseFloat(neo.close_approach_data[0].relative_velocity.kilometers_per_second);
+          const miss = parseFloat(neo.close_approach_data[0].miss_distance.kilometers).toFixed(0);
+
+          const div = document.createElement("div");
+          div.className = "neo-item";
+          div.innerHTML = `<strong>${neo.name}</strong><br>
+            Size: ~${diameter} m<br>
+            Speed: ${speed.toFixed(1)} km/s<br>
+            Miss: ${miss} km`;
+
+          // 点击时 → 跳回首页并传参数
+          div.onclick = () => {
+            localStorage.setItem("selectedNEO", JSON.stringify({
+              name: neo.name,
+              diameter: diameter,
+              speed: speed * 1000
+            }));
+            window.location.href = "index.html";
+          };
+
+          list.appendChild(div);
+        });
+      } catch (e) {
+        document.getElementById("neoList").textContent = "Failed to load NEO data.";
+        console.error(e);
+      }
+    }
+
+    loadNEOList();
+  </script>
 </body>
 </html>
