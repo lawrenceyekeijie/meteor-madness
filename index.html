@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Asteroid Impact Simulator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>☄️ Asteroid Impact Simulator</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="resources.html">Resources</a>
+      <a href="about.html">About</a>
+    </nav>
+  </header>
+
+  <main>
+    <section>
+      <h2>Interactive Simulation</h2>
+      <canvas id="simCanvas" width="600" height="400"></canvas>
+      <button onclick="startSimulation()">Start Simulation</button>
+    </section>
+
+    <section>
+      <h2>Live Data from NASA NEO API</h2>
+      <button onclick="loadNEO()">Fetch NEO Data</button>
+      <pre id="neoData">Click the button to load data...</pre>
+    </section>
+  </main>
+
+  <footer>
+    <p>Data from NASA & USGS | Hosted on GitHub Pages</p>
+  </footer>
+
+  <script src="simulator.js"></script>
+  <script>
+    async function loadNEO() {
+      const res = await fetch("https://api.nasa.gov/neo/rest/v1/feed?start_date=2025-09-17&api_key=DEMO_KEY");
+      const data = await res.json();
+      document.getElementById("neoData").textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
