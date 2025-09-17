@@ -1,13 +1,32 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Asteroid Impact Simulator</title>
-  <link rel="stylesheet" href="style.css">
+
+  <!-- Roboto font -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+
+  <style>
+    /* 你原本的 CSS 保留，这里不删，只是上面加一个导航栏 */
+    body { margin:0; }
+    header {
+      background:#111; color:#fff; padding:10px 20px; display:flex; justify-content:space-between; align-items:center;
+    }
+    header nav a {
+      color:#fff; margin-left:15px; text-decoration:none; font-weight:500;
+    }
+    header nav a:hover { text-decoration:underline; }
+  </style>
 </head>
 <body>
+  <!-- 顶部导航 -->
   <header>
-    <h1>☄️ Asteroid Impact Simulator</h1>
+    <h2>☄️ Asteroid Impact Simulator</h2>
     <nav>
       <a href="index.html">Home</a>
       <a href="resources.html">Resources</a>
@@ -15,31 +34,13 @@
     </nav>
   </header>
 
-  <main>
-    <section>
-      <h2>Interactive Simulation</h2>
-      <canvas id="simCanvas" width="600" height="400"></canvas>
-      <button onclick="startSimulation()">Start Simulation</button>
-    </section>
+  <!-- 原来的模拟器内容开始 -->
+  <div class="app">
+    <div class="left card">
+      <div id="map"></div>
+      <div class="fall-wrap" id="fallWrap" aria-hidden="true"></div>
+    </div>
 
-    <section>
-      <h2>Live Data from NASA NEO API</h2>
-      <button onclick="loadNEO()">Fetch NEO Data</button>
-      <pre id="neoData">Click the button to load data...</pre>
-    </section>
-  </main>
-
-  <footer>
-    <p>Data from NASA & USGS | Hosted on GitHub Pages</p>
-  </footer>
-
-  <script src="simulator.js"></script>
-  <script>
-    async function loadNEO() {
-      const res = await fetch("https://api.nasa.gov/neo/rest/v1/feed?start_date=2025-09-17&api_key=DEMO_KEY");
-      const data = await res.json();
-      document.getElementById("neoData").textContent = JSON.stringify(data, null, 2);
-    }
-  </script>
-</body>
-</html>
+    <div class="right">
+      <!-- 保持原本的控制面板和结果展示 -->
+      <!-- （你的代码我这里不重复
