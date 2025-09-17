@@ -5,14 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Asteroid Impact Simulator</title>
 
-  <!-- Roboto font -->
+  <!-- 字体 & Leaflet -->
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 
   <style>
-    /* 你原来的 CSS 都保留 */
     :root{
       --bg:#0f1724; --card:#0b1220; --accent:#7c3aed; --muted:#94a3b8; --glass:rgba(255,255,255,0.03);
       font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
@@ -38,17 +35,10 @@
     .buttons{display:flex;gap:8px;flex-wrap:wrap}
     button{background:linear-gradient(180deg,var(--accent),#5b21b6);border:none;color:white;padding:8px 12px;border-radius:10px;font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(92,33,182,0.18)}
     button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);box-shadow:none;color:var(--muted)}
-    .legend{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .legend .sw{width:18px;height:10px;border-radius:4px}
-    .sw.red{background:linear-gradient(90deg, rgba(255,69,58,0.95), rgba(255,86,86,0.6))}
-    .sw.orange{background:linear-gradient(90deg,#ff8a00,#ffb86b)}
-    .sw.yellow{background:linear-gradient(90deg,#ffd54a,#fff59d)}
-    .sw.mild{background:linear-gradient(90deg,#c8f7a6,#e6ffcf)}
     @media (max-width:920px){.app{flex-direction:column;padding:10px} .left{max-width:none;height:60vh} .right{width:100%;max-width:none;}}
   </style>
 </head>
 <body>
-  <!-- 顶部导航 -->
   <header>
     <h2>☄️ Asteroid Impact Simulator</h2>
     <nav>
@@ -66,48 +56,29 @@
 
     <div class="right">
       <div class="card">
-        <h3 style="margin:6px 0 10px 0">Asteroid Impact Simulator</h3>
-        <div class="controls" id="controls">
+        <h3>Asteroid Impact Simulator</h3>
+        <div class="controls">
 
-          <!-- 原有滑块保留 -->
-
+          <!-- 参数控制 -->
           <div class="row">
             <div class="label">Mass (kg)</div>
-            <div style="flex:1">
-              <input id="massRange" type="range" min="1e6" max="1e13" step="1" value="1e9">
-            </div>
+            <div style="flex:1"><input id="massRange" type="range" min="1e6" max="1e13" step="1" value="1e9"></div>
             <div class="value" id="massVal">1,000,000,000</div>
           </div>
-
           <div class="row">
             <div class="label">Speed (m/s)</div>
             <div style="flex:1"><input id="speedRange" type="range" min="5000" max="50000" step="100" value="20000"></div>
             <div class="value" id="speedVal">20,000</div>
           </div>
-
           <div class="row">
             <div class="label">Latitude</div>
             <div style="flex:1"><input id="latRange" type="range" min="-90" max="90" step="0.0001" value="0"></div>
             <div class="value" id="latVal">0.0000°</div>
           </div>
-
           <div class="row">
             <div class="label">Longitude</div>
             <div style="flex:1"><input id="lngRange" type="range" min="-180" max="180" step="0.0001" value="0"></div>
             <div class="value" id="lngVal">0.0000°</div>
-          </div>
-
-          <hr style="border:none;border-top:1px solid rgba(255,255,255,0.03);margin:6px 0">
-          <div class="row">
-            <div class="label">Deflect (%)</div>
-            <div style="flex:1"><input id="deflectRange" type="range" min="0" max="90" step="1" value="0"></div>
-            <div class="value" id="deflectVal">0%</div>
-          </div>
-
-          <div class="row">
-            <div class="label">Fragment (%)</div>
-            <div style="flex:1"><input id="fragRange" type="range" min="0" max="90" step="1" value="0"></div>
-            <div class="value" id="fragVal">0%</div>
           </div>
 
           <div class="buttons" style="margin-top:6px">
@@ -121,11 +92,9 @@
 
       <div class="card outputs">
         <div class="output"><strong>Asteroid diameter:</strong> <span id="astDia">—</span> m</div>
-        <div class="output"><strong>Kinetic energy (J):</strong> <span id="keVal">—</span> (<span id="keSci">—</span>)</div>
+        <div class="output"><strong>Kinetic energy (J):</strong> <span id="keVal">—</span></div>
         <div class="output"><strong>Estimated crater diameter:</strong> <span id="craterVal">—</span> km</div>
         <div class="output"><strong>Blast radii (km):</strong> <span id="radiiVal">—</span></div>
-        <div class="output"><strong>Estimated affected population:</strong> <span id="popAffected">—</span></div>
-        <div class="output"><strong>Estimated fatalities:</strong> <span id="fatalitiesVal">—</span></div>
         <div class="output"><strong>NASA NEO:</strong> <span id="neoInfo">Click "Load NEO"…</span></div>
       </div>
     </div>
@@ -135,7 +104,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <script>
-    /* 这里粘贴你原本的 JS 逻辑（computeImpact, simulate 等等，全保留） */
+    // ============ 这里放你原来的模拟器 JS 逻辑（computeImpact, simulate, updateDisplays 等等） ============
 
     // === NASA NEO API Integration ===
     async function loadNEOData() {
@@ -155,15 +124,14 @@
         const name = first.name;
         const diameter = first.estimated_diameter.meters.estimated_diameter_max.toFixed(0);
         const speed = parseFloat(first.close_approach_data[0].relative_velocity.kilometers_per_second) * 1000;
-        const missDistance = parseFloat(first.close_approach_data[0].miss_distance.kilometers).toFixed(0);
 
         document.getElementById('neoInfo').textContent =
-          `${name} — ~${diameter} m, ${Math.round(speed).toLocaleString()} m/s, miss ${missDistance} km`;
+          `${name} — ~${diameter} m, ${Math.round(speed).toLocaleString()} m/s`;
 
-        // 转换直径 → 质量 (体积*密度)
+        // 转换直径 → 质量
         const radius = diameter / 2;
         const volume = (4/3) * Math.PI * Math.pow(radius, 3);
-        const mass = volume * 3000; // 假设密度 3000 kg/m³
+        const mass = volume * 3000;
 
         massRange.value = mass;
         speedRange.value = speed;
@@ -175,8 +143,28 @@
         document.getElementById('neoInfo').textContent = "Failed to load NEO data.";
       }
     }
-
     document.getElementById('loadNEOBtn').addEventListener('click', loadNEOData);
+
+    // === 检查 Resources 页面传来的选择 ===
+    window.addEventListener("load", () => {
+      const sel = localStorage.getItem("selectedNEO");
+      if (sel) {
+        const neo = JSON.parse(sel);
+        document.getElementById("neoInfo").textContent =
+          `${neo.name} — ~${neo.diameter} m, ${Math.round(neo.speed).toLocaleString()} m/s (from Resources)`;
+
+        const radius = neo.diameter / 2;
+        const volume = (4/3) * Math.PI * Math.pow(radius, 3);
+        const mass = volume * 3000;
+
+        massRange.value = mass;
+        speedRange.value = neo.speed;
+        updateDisplays();
+        simulate(true);
+
+        localStorage.removeItem("selectedNEO");
+      }
+    });
   </script>
 </body>
 </html>
